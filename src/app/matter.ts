@@ -120,12 +120,14 @@ export default class Animation{
 			if(body && body.label === "floatingButton"){
 				Composite.add(this.engine.world, createRings(body))
 
-				const ringBodies = getFirstRings(this.engine.world)?.bodies;
+				const rings = getFirstRings(this.engine.world)
 
-				if(ringBodies){
-					shallowCopyRings(ringBodies, this.manyBox)
-					animateBodies(ringBodies, body.position)
+				if(!rings){
+					throw new Error("Faild to find Rings")
 				}
+
+				shallowCopyRings(rings.bodies, this.manyBox)
+				animateBodies(rings.bodies, body.position)
 				body = null 
 			}
 		})
@@ -145,6 +147,8 @@ function shallowCopyRings(ringBodies: Body[], dest: {position: {x:number, y:numb
 			}
 		});
 }
+
+
 
 function resetAllRings(world: Matter.World){
 	const allRings = getAllRings(world)
