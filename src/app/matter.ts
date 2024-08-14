@@ -52,7 +52,7 @@ export default class Animation{
 		Runner.run(this.runner, this.engine);
 	}
 
-	private trail: {position: {x: number, y: number}, speed: number}[][] = [];
+	private trail: {position: {x: number, y: number}, speed: number}[] = [];
 	private manyBox: Body[]| null = null;
 	private startTime: number = Date.now();
 	private currentTime: number = Date.now();
@@ -61,56 +61,56 @@ export default class Animation{
 	public connectEvent(){
 		let body: Body | null;
 		Events.on(this.mouseConstraint,"startdrag", (e: Matter.IEvent<MouseConstraint>)=>{
+
+			this.manyBox = null;
 			this.startTime = Date.now();
+
 			this.trail = [];
 			body = e.source.body;
 		})
 
 		Events.on(this.render, 'afterRender', ()=> {
-			if(this.manyBox === null) return;
 
+			if(this.trail === null) return;
+			if(this.manyBox === null) return;
 			if (this.initDate){
 				this.startTime = Date.now();
 				this.initDate = false
 			}
 
 			this.currentTime = Date.now();
-			if(this.currentTime - this.startTime > 10000){
-				this.trail = [];
-				this.initDate = true;
-			}
 
-
-			this.manyBox.forEach((box) => {
-				const tmp = []
-				tmp.unshift({
-					position: Vector.clone(box.position),
-					speed: box.speed
-				})
-				this.trail.unshift(tmp)
+			this.trail.unshift({
+				position: this.manyBox[0].position,
+				speed: this.manyBox[0].speed
 			})
 
-			for (let j = 0; j  < this.trail.length; j ++) {
-				for (let i = 0; i < this.trail[j].length; i += 1) {
-					const point = this.trail[j][i].position
-					const speed = this.trail[j][i].speed;
-					
-					const hue = 250 + Math.round((1 - Math.min(1, speed / 10)) * 170);
-					this.render.context.fillStyle = 'hsl(' + hue + ', 100%, 55%)';
-					this.render.context.fillRect(point.x, point.y, 2, 2);
-				}
+			console.log(this.trail);
 
+			for (let j = 0; j  < this.trail.length; j ++) {
+					const point = this.trail[j].position
+					const rgbRange =  Math.floor(360 - j) < 0 ? 0 : Math.floor(360 - j)
+					this.render.context.fillStyle = `hsl(${rgbRange}, 55%, 35%)`
+					this.render.context.fillRect(point.x, point.y, 2, 2);
 			}
 
-
-			if (this.trail[0].length > 300) {
+			if (this.trail.length > 300) {
 				this.trail.pop();
+			}
+
+			if(this.currentTime - this.startTime > 10000){
+				this.trail = [];
+				this.manyBox = null;
+				this.initDate = true;
 			}
 		});
 
 		Events.on(this.mouseConstraint, "mouseup", ()=>{
+			// this.trail = null;
+			this.manyBox = null;
 			this.trail = [];
 			this.startTime = Date.now();
+			
 			const composites = Composite.allComposites(this.engine.world).filter(compo => compo.label === "compositeCircle");
 			if (composites.length > 0) {
 				composites.forEach(el => Composite.remove(this.engine.world, el))
@@ -122,7 +122,7 @@ export default class Animation{
 				Composite.add(this.engine.world, newCompo)
 				const composites = Composite.allComposites(this.engine.world).filter(compo => compo.label === "compositeCircle");
 				const newBodies = composites[0].bodies;
-				this.manyBox = newBodies
+				this.manyBox = newBodies;
 				animateBodies(newBodies, body.position)
 				
 				body = null 
