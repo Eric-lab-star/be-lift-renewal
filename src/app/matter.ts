@@ -62,17 +62,21 @@ export default class Animation{
 		let body: Body | null;
 
 		Events.on(this.mouseConstraint,"startdrag", (e: Matter.IEvent<MouseConstraint>)=>{
+			this.startTime = Date.now();
+			this.manyBox = null;
+			this.trail = []
 			body = e.source.body;
 		})
 
 		Events.on(this.render, 'afterRender', ()=> {
-			if(this.trail === null) return;
 			if(this.manyBox === null) return;
 			if (this.initDate){
 				this.startTime = Date.now();
 				this.initDate = false
 			}
 			this.currentTime = Date.now();
+
+			//  start draw trail
 
 			for (let i = 0; i < this.manyBox.length; i++){
 				if(!this.trail[i]){
@@ -81,8 +85,6 @@ export default class Animation{
 				const copyObj = {position: {x: this.manyBox[i].position.x, y: this.manyBox[i].position.y}} // deep copy
 				this.trail[i].unshift(copyObj)
 			}
-			console.log(this.trail[0]);
-			
 
 			for (let i = 0; i < this.trail.length; i++){
 				for (let j = 0; j  < this.trail[i].length; j ++) {
@@ -94,12 +96,14 @@ export default class Animation{
 			}
 			
 
-			if (this.trail[0].length > 300) {
+			if ( typeof this.trail[0] == "object" && this.trail[0].length > 300) {
 				for (let i = 0; i < this.trail.length; i++){
 					this.trail[i].pop()
 				}
 			}
 
+			//end 
+			
 			if(this.currentTime - this.startTime > 10000){
 				this.trail = [];
 				this.manyBox = null;
