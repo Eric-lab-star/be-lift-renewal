@@ -115,27 +115,20 @@ export default class Animation{
 			this.manyBox = []
 			this.trail = []
 
-			resetRings(this.engine.world)
+			resetAllRings(this.engine.world)
 
 			if(body && body.label === "floatingButton"){
-				const newCompo = customComposit(body)
-				Composite.add(this.engine.world, newCompo)
-				const rings = getRings(this.engine.world)
-				const newBodies = rings[0].bodies;
-				
-				newBodies.map((v,i)=>{
-					if(this.manyBox){
-						//shallow copy
-						this.manyBox[i] = {position : v.position}
-					}
-				});
+				Composite.add(this.engine.world, createRings(body))
 
-				animateBodies(newBodies, body.position)
+				const ringBodies = getFirstRings(this.engine.world)?.bodies;
+
+				if(ringBodies){
+					shallowCopyRings(ringBodies, this.manyBox)
+					animateBodies(ringBodies, body.position)
+				}
 				body = null 
 			}
-
 		})
-
 	}
 
 	public demo(){
@@ -145,18 +138,29 @@ export default class Animation{
 
 }
 
-function resetRings(world: Matter.World){
-	const rings = getRings(world)
-	if (rings.length > 0) {
-		rings.forEach(el => Composite.remove(world, el))
+function shallowCopyRings(ringBodies: Body[], dest: {position: {x:number, y:number}}[] ){
+		ringBodies.map((v,i)=>{
+			if(dest){
+				dest[i] = {position : v.position}
+			}
+		});
+}
+
+function resetAllRings(world: Matter.World){
+	const allRings = getAllRings(world)
+	if (allRings.length > 0) {
+		allRings.forEach(el => Composite.remove(world, el))
 	}
 	return;
 }
 
-function getRings(world: Matter.World): Composite[] {
-	return	Composite.allComposites(world).filter(compo => compo.label === "compositeCircle");
+function getAllRings(world: Matter.World): Composite[] {
+	return	Composite.allComposites(world).filter(compo => compo.label === "rings");
 }
 
+function getFirstRings(world: Matter.World): Composite | undefined {
+	return	Composite.allComposites(world).find(compo => compo.label === "rings");
+}
 
 function animateBodies(bodies: Matter.Body[], center: {x:number, y:number}){
 	bodies.forEach(body => {
@@ -175,13 +179,14 @@ function animateBodies(bodies: Matter.Body[], center: {x:number, y:number}){
 	})
 }
 
-function customComposit(targetBody: Body){
-	const point = targetBody.position
-	const length = 120;
-	const compo = Composite.create({label: "compositeCircle"})
+function createRings(centerBody: Body){
+	const centerPoint = centerBody.position
+	const OFFSET = 120;
+	const rings = Composite.create({label: "rings"})
+	const RADIAN = Math.PI / 180
+
 	for (let i = 1; i < 360; i += 30){
-		const radian = (Math.PI / 180) * i
-		const newPoint = {x: Math.cos(radian)* length + point.x, y: Math.sin(radian) * length + point.y}
+		const newPoint = {x: Math.cos(RADIAN * i)* OFFSET + centerPoint.x, y: Math.sin(RADIAN * i) * OFFSET + centerPoint.y}
 		const newBody = Bodies.rectangle(
 			newPoint.x, newPoint.y, 60, 60, 
 			{
@@ -192,12 +197,10 @@ function customComposit(targetBody: Body){
 			}
 		)
 		newBody.frictionAir = 0.05
-		Composite.add(compo, [ newBody])
+		Composite.add(rings, [ newBody])
 	}
-	return compo
+	return rings
 }
-
-
 
 const draggable= {
 	inertia: Infinity,
