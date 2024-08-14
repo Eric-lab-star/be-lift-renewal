@@ -52,8 +52,8 @@ export default class Animation{
 		Runner.run(this.runner, this.engine);
 	}
 
-	private trail: {position: {x: number, y: number}, speed: number}[] = [];
-	private manyBox: Body[]| null = null;
+	private trail: {position: {x: number, y: number}}[][] = [];
+	private manyBox: {position: {x:number, y:number}}[]| null = null;
 	private startTime: number = Date.now();
 	private currentTime: number = Date.now();
 	private initDate = true;
@@ -61,16 +61,13 @@ export default class Animation{
 	public connectEvent(){
 		let body: Body | null;
 		Events.on(this.mouseConstraint,"startdrag", (e: Matter.IEvent<MouseConstraint>)=>{
-
 			this.manyBox = null;
 			this.startTime = Date.now();
-
 			this.trail = [];
 			body = e.source.body;
 		})
 
 		Events.on(this.render, 'afterRender', ()=> {
-
 			if(this.trail === null) return;
 			if(this.manyBox === null) return;
 			if (this.initDate){
@@ -82,7 +79,6 @@ export default class Animation{
 
 			this.trail.unshift({
 				position: this.manyBox[0].position,
-				speed: this.manyBox[0].speed
 			})
 
 			console.log(this.trail);
@@ -122,7 +118,9 @@ export default class Animation{
 				Composite.add(this.engine.world, newCompo)
 				const composites = Composite.allComposites(this.engine.world).filter(compo => compo.label === "compositeCircle");
 				const newBodies = composites[0].bodies;
-				this.manyBox = newBodies;
+				newBodies.map((v,i)=>{
+					this.manyBox[i] = v.position
+				});
 				animateBodies(newBodies, body.position)
 				
 				body = null 
