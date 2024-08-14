@@ -112,19 +112,17 @@ export default class Animation{
 		});
 
 		Events.on(this.mouseConstraint, "mouseup", ()=>{
-			const composites = Composite.allComposites(this.engine.world).filter(compo => compo.label === "compositeCircle");
-			if (composites.length > 0) {
-				composites.forEach(el => Composite.remove(this.engine.world, el))
-				return;
-			}
+			this.manyBox = []
+			this.trail = []
+
+			resetRings(this.engine.world)
 
 			if(body && body.label === "floatingButton"){
 				const newCompo = customComposit(body)
 				Composite.add(this.engine.world, newCompo)
-				const composites = Composite.allComposites(this.engine.world).filter(compo => compo.label === "compositeCircle");
-				const newBodies = composites[0].bodies;
+				const rings = getRings(this.engine.world)
+				const newBodies = rings[0].bodies;
 				
-				this.manyBox = []
 				newBodies.map((v,i)=>{
 					if(this.manyBox){
 						//shallow copy
@@ -146,6 +144,19 @@ export default class Animation{
 	}
 
 }
+
+function resetRings(world: Matter.World){
+	const rings = getRings(world)
+	if (rings.length > 0) {
+		rings.forEach(el => Composite.remove(world, el))
+	}
+	return;
+}
+
+function getRings(world: Matter.World): Composite[] {
+	return	Composite.allComposites(world).filter(compo => compo.label === "compositeCircle");
+}
+
 
 function animateBodies(bodies: Matter.Body[], center: {x:number, y:number}){
 	bodies.forEach(body => {
@@ -181,7 +192,6 @@ function customComposit(targetBody: Body){
 			}
 		)
 		newBody.frictionAir = 0.05
-		// Body.setVelocity(newBody, {x: Math.cos(radian), y: Math.sin(radian)})
 		Composite.add(compo, [ newBody])
 	}
 	return compo
