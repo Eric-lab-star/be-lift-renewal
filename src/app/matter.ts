@@ -1,4 +1,4 @@
-import  { Bodies, Body,Composite, Constraint, Engine, Events, Mouse, MouseConstraint, Render, Runner, Vector } from "matter-js";
+import  { Bodies, Body,Composite, Engine, Events, Mouse, MouseConstraint, Render, Runner, Vector } from "matter-js";
 
 
 export default class Animation{
@@ -53,17 +53,15 @@ export default class Animation{
 	}
 
 	private trail: {position: {x: number, y: number}}[][] = [];
-	private manyBox: {position: {x:number, y:number}}[]| null = null;
+	private manyBox: {position: Vector}[] | null = null;
 	private startTime: number = Date.now();
 	private currentTime: number = Date.now();
 	private initDate = true;
 
 	public connectEvent(){
 		let body: Body | null;
+
 		Events.on(this.mouseConstraint,"startdrag", (e: Matter.IEvent<MouseConstraint>)=>{
-			this.manyBox = null;
-			this.startTime = Date.now();
-			this.trail = [];
 			body = e.source.body;
 		})
 
@@ -74,21 +72,27 @@ export default class Animation{
 				this.startTime = Date.now();
 				this.initDate = false
 			}
-
 			this.currentTime = Date.now();
 
-			this.trail.unshift({
-				position: this.manyBox[0].position,
-			})
+			for (let i = 0; i < this.manyBox.length; i++){
+				if(!this.trail[i]){
+					this.trail[i] = []
+				}
+				const copyObj = {position: {x: this.manyBox[i].position.x, y: this.manyBox[i].position.y}} // deep copy
+				this.trail[i].unshift(copyObj)
+			}
+			console.log(this.trail[0]);
+			
 
-			console.log(this.trail);
-
-			for (let j = 0; j  < this.trail.length; j ++) {
-					const point = this.trail[j].position
+			for (let i = 0; i < this.trail.length; i++){
+				for (let j = 0; j  < this.trail[i].length; j ++) {
+					const point = this.trail[i][j].position
 					const rgbRange =  Math.floor(360 - j) < 0 ? 0 : Math.floor(360 - j)
 					this.render.context.fillStyle = `hsl(${rgbRange}, 55%, 35%)`
 					this.render.context.fillRect(point.x, point.y, 2, 2);
+				}	
 			}
+			
 
 			if (this.trail.length > 300) {
 				this.trail.pop();
@@ -102,11 +106,6 @@ export default class Animation{
 		});
 
 		Events.on(this.mouseConstraint, "mouseup", ()=>{
-			// this.trail = null;
-			this.manyBox = null;
-			this.trail = [];
-			this.startTime = Date.now();
-			
 			const composites = Composite.allComposites(this.engine.world).filter(compo => compo.label === "compositeCircle");
 			if (composites.length > 0) {
 				composites.forEach(el => Composite.remove(this.engine.world, el))
@@ -118,11 +117,16 @@ export default class Animation{
 				Composite.add(this.engine.world, newCompo)
 				const composites = Composite.allComposites(this.engine.world).filter(compo => compo.label === "compositeCircle");
 				const newBodies = composites[0].bodies;
-				newBodies.map((v,i)=>{
-					this.manyBox[i] = v.position
-				});
-				animateBodies(newBodies, body.position)
 				
+				this.manyBox = []
+				newBodies.map((v,i)=>{
+					if(this.manyBox){
+						//shallow copy
+						this.manyBox[i] = {position : v.position}
+					}
+				});
+
+				animateBodies(newBodies, body.position)
 				body = null 
 			}
 
