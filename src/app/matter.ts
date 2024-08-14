@@ -94,8 +94,10 @@ export default class Animation{
 			}
 			
 
-			if (this.trail.length > 300) {
-				this.trail.pop();
+			if (this.trail[0].length > 300) {
+				for (let i = 0; i < this.trail.length; i++){
+					this.trail[i].pop()
+				}
 			}
 
 			if(this.currentTime - this.startTime > 10000){
