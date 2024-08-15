@@ -15,8 +15,10 @@ export default class Animation{
 	private mouse: Mouse;
 	private mouseConstraint : MouseConstraint;
 	private canvas: HTMLCanvasElement;
+	private ringUI: Ring;
 
 	constructor(canvas: HTMLCanvasElement){
+		this.ringUI = new Ring()
 		this.canvas = canvas,
 		this.render = Render.create({
 		  canvas: canvas,
@@ -91,22 +93,20 @@ export default class Animation{
 		Events.on(this.mouseConstraint, "mouseup", ()=>{
 			this.manyBox = []
 			this.trail = []
+			
 
-			resetAllRings(this.engine.world)
+			Composite.remove(this.engine.world, this.ringUI.compo)
+			this.ringUI = new Ring()
+			// should reset ringui bodies position
 
 			if(body && body.label === "floatingButton"){
-				Ring.setRingsCenter(body.position)
 
-				Composite.add(this.engine.world, Ring.compo)
+				this.ringUI.setRingsCenter(body.position)
 
-				const rings = getFirstRings(this.engine.world)
+				Composite.add(this.engine.world, this.ringUI.compo)
 
-				if(!rings){
-					throw new Error("Faild to find Rings")
-				}
-
-				shallowCopyRings(rings.bodies, this.manyBox)
-				animateBodies(rings.bodies, body.position)
+				shallowCopyRings(this.ringUI.bodies, this.manyBox)
+				this.ringUI.whirlwind()
 				body = null 
 			}
 		})
@@ -173,34 +173,36 @@ function shallowCopyRings(ringBodies: Body[], dest: IPos[] ){
 
 
 
-function resetAllRings(world: Matter.World){
-	const allRings = getAllRings(world)
+function removeAllComposites(world: Matter.World, label: String){
+	const allRings = getAllComposites(world, label)
 	if (allRings.length > 0) {
 		allRings.forEach(el => Composite.remove(world, el))
 	}
 	return;
 }
 
-function getAllRings(world: Matter.World): Composite[] {
-	return	Composite.allComposites(world).filter(compo => compo.label === "rings");
+function getAllComposites(world: Matter.World, label: String): Composite[] {
+	return	Composite.allComposites(world).filter(compo => compo.label === label);
 }
 
-function getFirstRings(world: Matter.World): Composite | undefined {
-	return	Composite.allComposites(world).find(compo => compo.label === "rings");
+function getFirstComposite(world: Matter.World, label: String): Composite | undefined {
+	return	Composite.allComposites(world).find(compo => compo.label === label);
 }
 
-function animateBodies(bodies: Matter.Body[], center: {x:number, y:number}){
+function whirlBodies(bodies: Matter.Body[], center: Matter.Vector){
+	const STEP = 20;
+	const LIMIT = 200;
 	bodies.forEach(body => {
 		let id: number;
 		id = window.setInterval(()=>{
 			const hypot = Math.hypot(body.position.x - center.x, body.position.y - center.y)
-			if(hypot > 200){
+			if(hypot > LIMIT){
 				Body.setVelocity(body,{x: 0, y:0})
 				clearInterval(id)
 			}
-			const radian = Math.atan2(body.position.y - center.y, body.position.x - center.x) + 20
+			const radian = Math.atan2(body.position.y - center.y, body.position.x - center.x) + STEP
 			const velocity = {x : Math.cos(radian), y: Math.sin(radian)}
-			Body.setVelocity(body,velocity)
+			Body.setVelocity(body, velocity)
 		},100)
 		
 	})

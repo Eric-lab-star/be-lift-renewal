@@ -1,18 +1,21 @@
 import { Bodies, Body, Composite, Vector } from "matter-js";
 import { draggable } from "./bodies";
 
-
-
 export default class Ring {
 	private static OFFSET: number = 120
 	private static RADIAN: number = Math.PI / 180
-	public static compo: Composite = Composite.create({label: "rings"})
 	private static step: number = 30
+	private static centerPos: Matter.Vector = {x: 0, y: 0}
+
 	private static basePoint: Matter.Vector[] = Ring.initBasePoint()
-	public static ringBodies: Matter.Body[] = Ring.initRingBodies()
-	private static centerPos: Matter.Vector = {x: 0, y:0}
+
+	public bodies: Matter.Body[]
+	public compo: Composite
 
 	constructor(){
+		this.compo = Composite.create({label: "ring"})
+		this.bodies = this.initRingBodies()
+		Composite.add(this.compo, this.bodies)
 	}
 
 	private static basePos(i: number){
@@ -31,7 +34,7 @@ export default class Ring {
 		return tmp
 	}
 
-	private static initRingBodies(){
+	private initRingBodies(){
 		const tmp = []
 		for (let i = 0; i < Ring.basePoint.length; i++ ){
 			const newBody = Bodies.rectangle(
@@ -44,17 +47,48 @@ export default class Ring {
 			)
 			newBody.frictionAir = 0.05
 			tmp[i] = newBody;
-			Composite.add(Ring.compo, newBody)
 		}
 		return tmp
 	}
 
-	public static setRingsCenter(newPos: Vector){
+	public setRingsCenter(newPos: Vector){
 		if(newPos.x === Ring.centerPos.x && newPos.y === Ring.centerPos.y) return;
 		Ring.centerPos = newPos
-		Ring.ringBodies.forEach((body,i) =>{
+		this.bodies.forEach((body,i) =>{
 			Body.setPosition(body, Vector.add(newPos, Ring.basePoint[i]))
 		})
 	}
+
+
+	private animationSpeed: number  = 100
+	public whirlwind(){
+		const STEP = 20;
+		const LIMIT = 200;
+		this.bodies.forEach(body => {
+			let id: number;
+			id = window.setInterval(()=>{
+				const hypot = 
+					Math.hypot(
+						body.position.x - Ring.centerPos.x,
+						body.position.y - Ring.centerPos.y
+					)
+				if(hypot > LIMIT){
+					Body.setVelocity(body,{x: 0, y:0})
+					clearInterval(id)
+				}
+				const radian = 
+					Math.atan2(
+						body.position.y - Ring.centerPos.y,
+						body.position.x - Ring.centerPos.x
+					) + STEP
+				const velocity = {x : Math.cos(radian), y: Math.sin(radian)}
+				Body.setVelocity(body, velocity)
+			},this.animationSpeed)
+			
+		})
+
+	}
+
+
 
 }
