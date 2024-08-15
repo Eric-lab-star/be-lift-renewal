@@ -1,6 +1,6 @@
-import  { Bodies, Body,Composite, Engine, Events, Mouse, MouseConstraint, Render, Runner, Vector } from "matter-js";
-import { draggable, floatingButton } from "./bodies";
-import Rings from "./rings";
+import  { Body,Composite, Engine, Events, Mouse, MouseConstraint, Render, Runner, Vector } from "matter-js";
+import { floatingButton } from "./bodies";
+import Ring from "./ring";
 
 
 export default class Animation{
@@ -11,6 +11,7 @@ export default class Animation{
 		}
 	});
 	public render: Render;
+
 	private mouse: Mouse;
 	private mouseConstraint : MouseConstraint;
 	private canvas: HTMLCanvasElement;
@@ -94,8 +95,9 @@ export default class Animation{
 			resetAllRings(this.engine.world)
 
 			if(body && body.label === "floatingButton"){
-				const r = new Rings(body.position)
-				Composite.add(this.engine.world, r.rings)
+				Ring.setRingsCenter(body.position)
+
+				Composite.add(this.engine.world, Ring.compo)
 
 				const rings = getFirstRings(this.engine.world)
 
