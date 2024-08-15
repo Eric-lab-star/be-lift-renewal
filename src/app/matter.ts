@@ -138,6 +138,16 @@ function drawTrail(trailStack: IPos[][], context: CanvasRenderingContext2D ){
 		}	
 	}
 }
+function deepCopyRings(origin: IPos[], dest: IPos[][]){
+	for (let i = 0; i < origin.length; i++){
+		if(!dest[i]){
+			dest[i] = []
+		}
+		//deep copy
+		const copyObj = {position: {x: origin[i].position.x, y: origin[i].position.y}} 
+		dest[i].unshift(copyObj)
+	}
+}
 		ringBodies.map((v,i)=>{
 			if(dest){
 				dest[i] = {position : v.position}
