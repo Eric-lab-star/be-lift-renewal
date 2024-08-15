@@ -79,15 +79,8 @@ export default class Animation{
 			//  start draw trail
 
 			deepCopyRings(this.manyBox, this.trail)
-
 			drawTrail(this.trail, this.render.context)
-			
-
-			if ( typeof this.trail[0] == "object" && this.trail[0].length > 300) {
-				for (let i = 0; i < this.trail.length; i++){
-					this.trail[i].pop()
-				}
-			}
+			popTrail(this.trail, 300)
 
 			//end 
 			
@@ -134,10 +127,18 @@ interface IPos {
 	}
 }
 
-function drawTrail(trailStack: IPos[][], context: CanvasRenderingContext2D ){
-	for (let i = 0; i < trailStack.length; i++){
-		for (let j = 0; j  < trailStack[i].length; j ++) {
-			const point = trailStack[i][j].position
+function popTrail(trailQue: IPos[][], limit: number){
+	if ( typeof trailQue[0] == "object" && trailQue[0].length > limit) {
+		for (let i = 0; i < trailQue.length; i++){
+			trailQue[i].pop()
+		}
+	}
+}
+
+function drawTrail(trailQueue: IPos[][], context: CanvasRenderingContext2D ){
+	for (let i = 0; i < trailQueue.length; i++){
+		for (let j = 0; j  < trailQueue[i].length; j ++) {
+			const point = trailQueue[i][j].position
 			const rgbRange =  Math.floor(360 - j) < 0 ? 0 : Math.floor(360 - j)
 			context.fillStyle = `hsl(${rgbRange}, 55%, 35%)`
 			context.fillRect(point.x, point.y, 2, 2);
