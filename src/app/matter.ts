@@ -80,14 +80,7 @@ export default class Animation{
 
 			deepCopyRings(this.manyBox, this.trail)
 
-			for (let i = 0; i < this.trail.length; i++){
-				for (let j = 0; j  < this.trail[i].length; j ++) {
-					const point = this.trail[i][j].position
-					const rgbRange =  Math.floor(360 - j) < 0 ? 0 : Math.floor(360 - j)
-					this.render.context.fillStyle = `hsl(${rgbRange}, 55%, 35%)`
-					this.render.context.fillRect(point.x, point.y, 2, 2);
-				}	
-			}
+			drawTrail(this.trail, this.render.context)
 			
 
 			if ( typeof this.trail[0] == "object" && this.trail[0].length > 300) {
