@@ -78,13 +78,7 @@ export default class Animation{
 
 			//  start draw trail
 
-			for (let i = 0; i < this.manyBox.length; i++){
-				if(!this.trail[i]){
-					this.trail[i] = []
-				}
-				const copyObj = {position: {x: this.manyBox[i].position.x, y: this.manyBox[i].position.y}} // deep copy
-				this.trail[i].unshift(copyObj)
-			}
+			deepCopyRings(this.manyBox, this.trail)
 
 			for (let i = 0; i < this.trail.length; i++){
 				for (let j = 0; j  < this.trail[i].length; j ++) {
