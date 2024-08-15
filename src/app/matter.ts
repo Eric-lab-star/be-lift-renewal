@@ -128,6 +128,16 @@ export default class Animation{
 }
 
 function shallowCopyRings(ringBodies: Body[], dest: {position: {x:number, y:number}}[] ){
+function drawTrail(trailStack: IPos[][], context: CanvasRenderingContext2D ){
+	for (let i = 0; i < trailStack.length; i++){
+		for (let j = 0; j  < trailStack[i].length; j ++) {
+			const point = trailStack[i][j].position
+			const rgbRange =  Math.floor(360 - j) < 0 ? 0 : Math.floor(360 - j)
+			context.fillStyle = `hsl(${rgbRange}, 55%, 35%)`
+			context.fillRect(point.x, point.y, 2, 2);
+		}	
+	}
+}
 		ringBodies.map((v,i)=>{
 			if(dest){
 				dest[i] = {position : v.position}
