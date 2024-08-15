@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import Animation from "./matter";
+import Animation from "./canvasAnimation/animation";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
