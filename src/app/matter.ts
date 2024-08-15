@@ -56,7 +56,7 @@ export default class Animation{
 	private manyBox: {position: Vector}[] | null = null;
 	private startTime: number = Date.now();
 	private currentTime: number = Date.now();
-	private initDate = true;
+	private timerOn = true;
 
 	public connectEvent(){
 		let body: Body | null;
@@ -70,24 +70,18 @@ export default class Animation{
 
 		Events.on(this.render, 'afterRender', ()=> {
 			if(this.manyBox === null) return;
-			if (this.initDate){
+			if (this.timerOn){
 				this.startTime = Date.now();
-				this.initDate = false
+				this.timerOn = false
 			}
 			this.currentTime = Date.now();
-
-			//  start draw trail
 
 			deepCopyRings(this.manyBox, this.trail)
 			drawTrail(this.trail, this.render.context)
 			popTrail(this.trail, 300)
-
-			//end 
 			
 			if(this.currentTime - this.startTime > 10000){
-				this.trail = [];
-				this.manyBox = null;
-				this.initDate = true;
+				stopTrailDrawing(this.trail, this.manyBox, this.timerOn)
 			}
 		});
 
@@ -125,6 +119,12 @@ interface IPos {
 		x: number;
 		y: number;
 	}
+}
+
+function stopTrailDrawing(trailQueue: IPos[][], manyBox: IPos[] | null, timer: boolean){
+	trailQueue = [];
+	manyBox = null;
+	timer = true;
 }
 
 function popTrail(trailQue: IPos[][], limit: number){
