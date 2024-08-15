@@ -127,13 +127,13 @@ export default class Animation{
 
 }
 
-function shallowCopyRings(ringBodies: Body[], dest: {position: {x:number, y:number}}[] ){
 interface IPos {
 	position: {
 		x: number;
 		y: number;
 	}
 }
+
 function drawTrail(trailStack: IPos[][], context: CanvasRenderingContext2D ){
 	for (let i = 0; i < trailStack.length; i++){
 		for (let j = 0; j  < trailStack[i].length; j ++) {
@@ -144,6 +144,7 @@ function drawTrail(trailStack: IPos[][], context: CanvasRenderingContext2D ){
 		}	
 	}
 }
+
 function deepCopyRings(origin: IPos[], dest: IPos[][]){
 	for (let i = 0; i < origin.length; i++){
 		if(!dest[i]){
@@ -154,6 +155,9 @@ function deepCopyRings(origin: IPos[], dest: IPos[][]){
 		dest[i].unshift(copyObj)
 	}
 }
+
+
+function shallowCopyRings(ringBodies: Body[], dest: IPos[] ){
 		ringBodies.map((v,i)=>{
 			if(dest){
 				dest[i] = {position : v.position}
