@@ -1,4 +1,6 @@
 import  { Bodies, Body,Composite, Engine, Events, Mouse, MouseConstraint, Render, Runner, Vector } from "matter-js";
+import { draggable, floatingButton } from "./bodies";
+import Rings from "./rings";
 
 
 export default class Animation{
@@ -92,7 +94,8 @@ export default class Animation{
 			resetAllRings(this.engine.world)
 
 			if(body && body.label === "floatingButton"){
-				Composite.add(this.engine.world, createRings(body))
+				const r = new Rings(body.position)
+				Composite.add(this.engine.world, r.rings)
 
 				const rings = getFirstRings(this.engine.world)
 
@@ -201,42 +204,7 @@ function animateBodies(bodies: Matter.Body[], center: {x:number, y:number}){
 	})
 }
 
-function createRings(centerBody: Body){
-	const centerPoint = centerBody.position
-	const OFFSET = 120;
-	const rings = Composite.create({label: "rings"})
-	const RADIAN = Math.PI / 180
 
-	for (let i = 1; i < 360; i += 30){
-		const newPoint = {x: Math.cos(RADIAN * i)* OFFSET + centerPoint.x, y: Math.sin(RADIAN * i) * OFFSET + centerPoint.y}
-		const newBody = Bodies.rectangle(
-			newPoint.x, newPoint.y, 60, 60, 
-			{
-				...draggable,
-				chamfer: {
-					radius: 30
-				} 
-			}
-		)
-		newBody.frictionAir = 0.05
-		Composite.add(rings, [ newBody])
-	}
-	return rings
-}
 
-const draggable= {
-	inertia: Infinity,
-	frictionAir: 1,
-}
 
-const floatingButton = Bodies.rectangle(
-	700, 350, 100, 100,
-	{
-		...draggable,
-		label: "floatingButton",
-		chamfer: {
-			radius: 50
-		}
-	}
-);
 
