@@ -128,6 +128,12 @@ export default class Animation{
 }
 
 function shallowCopyRings(ringBodies: Body[], dest: {position: {x:number, y:number}}[] ){
+interface IPos {
+	position: {
+		x: number;
+		y: number;
+	}
+}
 function drawTrail(trailStack: IPos[][], context: CanvasRenderingContext2D ){
 	for (let i = 0; i < trailStack.length; i++){
 		for (let j = 0; j  < trailStack[i].length; j ++) {
