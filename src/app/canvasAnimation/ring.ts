@@ -87,36 +87,10 @@ export default class RingUI {
 	
 	public whirlwind(){
 		const limit = 200;
-
 		this.animationIds.forEach((v)=>{
 			clearInterval(v)
 		})
-
-		this.bodies.forEach((body,i) => {
-			let accel: number = 0.1;
-			this.animationIds[i] = window.setInterval(()=>{
-				const hypot = 
-					Math.hypot(
-						body.position.x - this.center.position.x,
-						body.position.y - this.center.position.y
-					)
-				if(hypot > limit){
-					Body.setVelocity(body,{x: 0, y:0})
-					clearInterval(this.animationIds[i])
-				}
-				const radian = 
-					Math.atan2(
-						body.position.y - this.center.position.y,
-						body.position.x - this.center.position.x
-					) + RingUI.STEP
-				const velocity = {x : Math.cos(radian) * accel, y: Math.sin(radian) * accel}
-				if (accel< 1.5){
-					accel += 0.01;
-				}
-
-				Body.setVelocity(body, velocity)
-			}, RingUI.callBackDelay)
-		})
+		this.bodies.forEach((body,i)=> this.whirl(body,i, limit))
 	}
 
 	public reverseWhirlwind(){
@@ -124,34 +98,69 @@ export default class RingUI {
 			clearInterval(v)
 		})
 
-		this.bodies.forEach((body,i) => {
-			let accel: number = 0.1;
-
-			this.animationIds[i] = window.setInterval(()=>{
-				const collision = Detector.collisions(this.detector)
-
-				collision.forEach((group)=>{
-					if (group.bodyB.id === body.id){
-						Body.setVelocity(body, {x: 0, y:0})
-						clearInterval(this.animationIds[i])
-					}
-				})
-				const radian = 
-					 Math.atan2(
-						body.position.y - this.center.position.y,
-						body.position.x - this.center.position.x
-					) + RingUI.STEP
-
-				const velocity = {x : -1 * Math.cos(radian) * accel, y: -1 * Math.sin(radian) * accel}
-				if (accel < 1.5){
-					accel += 0.01;
-				}
-
-				Body.setVelocity(body, velocity)
-			}, RingUI.callBackDelay)
-		})
+		this.bodies.forEach((body,i)=>this.reverseWhirl(body,i))
 
 	}
+
+	public whirl(body: Matter.Body, i: number, limit: number){
+		let accel = 1
+		this.animationIds[i] = window.setInterval(() => {
+			const hypot = Math.hypot(
+					body.position.x - this.center.position.x,
+					body.position.y - this.center.position.y
+				)
+			if(hypot > limit){
+				Body.setVelocity(body,{x: 0, y:0})
+				clearInterval(this.animationIds[i])
+			}
+
+			const radian = Math.atan2(
+					body.position.y - this.center.position.y,
+					body.position.x - this.center.position.x
+				) + RingUI.STEP
+
+			const velocity = {
+				x : Math.cos(radian) * accel,
+				y: Math.sin(radian) * accel
+			}
+
+			if (accel < 3){
+				accel += 0.01;
+			}
+
+			Body.setVelocity(body, velocity)
+
+		}, RingUI.callBackDelay)
+	}
+
+	public reverseWhirl(body: Matter.Body, i: number) {
+		let accel: number = 1;
+
+		this.animationIds[i] = window.setInterval(()=>{
+			const collision = Detector.collisions(this.detector)
+
+			collision.forEach((group)=>{
+				if (group.bodyB.id === body.id){
+					Body.setVelocity(body, {x: 0, y:0})
+					clearInterval(this.animationIds[i])
+				}
+			})
+			const radian = 
+				 Math.atan2(
+					body.position.y - this.center.position.y,
+					body.position.x - this.center.position.x
+				) + RingUI.STEP
+
+			const velocity = {x : -1 * Math.cos(radian) * accel, y: -1 * Math.sin(radian) * accel}
+			if (accel < 1.5){
+				accel += 0.01;
+			}
+
+			Body.setVelocity(body, velocity)
+		}, RingUI.callBackDelay)
+	
+	}
+
 
 	public removeRing(){
 		Composite.remove(this.world, this.compo)
@@ -189,6 +198,7 @@ export default class RingUI {
 		Events.on(mouse, "mouseup", ()=>{
 			this.trailUI.positions = []
 			this.trailUI.trail = []
+			this.trailUI.startTime = Date.now();
 			
 			if(whirlwindOpen){
 				this.reverseWhirlwind()
