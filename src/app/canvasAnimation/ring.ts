@@ -1,5 +1,6 @@
 import { Bodies, Body, Composite, Detector, Events, Vector } from "matter-js";
 import { draggable } from "./bodies";
+import TrailUI from "./trails";
 
 const bodyOpts = { ...draggable,
 	chamfer: {
@@ -22,6 +23,7 @@ export default class RingUI {
 	public bodies: Matter.Body[]
 	public compo: Composite
 	private world: Matter.World;
+	private trailUI: TrailUI;
 
 	constructor(world: Matter.World, center: Matter.Body){
 		this.center = center
@@ -31,6 +33,7 @@ export default class RingUI {
 		this.detector = Detector.create({
 			bodies: this.bodies
 		})
+		this.trailUI = new TrailUI()
 
 		Composite.add(this.compo, [this.center, ...this.bodies])
 		Composite.add(this.world, this.compo)
@@ -158,112 +161,56 @@ export default class RingUI {
 		return !!Composite.get(this.world, this.compo.id, this.compo.type)
 	}
 
-	private trail: {position: {x: number, y: number}}[][] = [];
-	private manyBox: {position: Vector}[] | null = null;
-	private startTime: number = Date.now();
-	private currentTime: number = Date.now();
-	private timerOn = true;
-	private SECOND = 1000;
 	public motion(mouse: Matter.MouseConstraint, render: Matter.Render){
 		let centerBody: Body | null;
+
 		Events.on(mouse,"startdrag", (e)=>{
-			this.startTime = Date.now();
-			this.manyBox = null;
-			this.trail = []
+			this.trailUI.startTime = Date.now();
 			centerBody = e.source.body;
 		})
 
 		Events.on(render, 'afterRender', ()=> {
-			if(this.manyBox === null) return;
-			if (this.timerOn){
-				this.startTime = Date.now();
-				this.timerOn = false
+			if(this.trailUI.positions === null) return;
+			if (this.trailUI.timerOn){
+				this.trailUI.startTime = Date.now();
+				this.trailUI.timerOn = false
 			}
-			this.currentTime = Date.now();
-
-			deepCopyRings(this.manyBox, this.trail)
-			drawTrail(this.trail, render.context)
-			popTrail(this.trail, 300)
+			this.trailUI.currentTime = Date.now();
+			this.trailUI.copyPositions()
+			this.trailUI.drawTrail(render.context)
+			this.trailUI.popTrail(300)
 			
-			if(this.currentTime - this.startTime > 10 * this.SECOND){
-				stopTrailDrawing(this.trail, this.manyBox, this.timerOn)
+			if(this.trailUI.currentTime - this.trailUI.startTime > 10 * this.trailUI.SECOND){
+				this.trailUI.stopTrailDrawing()
 			}
 		});
 
 		let whirlwindOpen = false;
 		Events.on(mouse, "mouseup", ()=>{
-			
-			this.manyBox = []
-			this.trail = []
+			this.trailUI.positions = []
+			this.trailUI.trail = []
 			
 			if(whirlwindOpen){
 				this.reverseWhirlwind()
-				shallowCopyRings(this.bodies, this.manyBox)
+				this.trailUI.shallowCopyRings(this.bodies)
 				whirlwindOpen = false
 				return;
 			}
 
 			if(centerBody && centerBody.label === "floatingButton"){
 				this.setRingCenter(centerBody)
-				shallowCopyRings(this.bodies, this.manyBox)
+				this.trailUI.shallowCopyRings(this.bodies)
 				this.whirlwind()
 				whirlwindOpen = true;
 				centerBody = null 
 			}
 		})
 	}
-
 }
 
 
-interface IPos {
-	position: {
-		x: number;
-		y: number;
-	}
-}
-
-function stopTrailDrawing(trailQueue: IPos[][], manyBox: IPos[] | null, timer: boolean){
-	trailQueue = [];
-	manyBox = null;
-	timer = true;
-}
-
-function popTrail(trailQue: IPos[][], limit: number){
-	if ( typeof trailQue[0] == "object" && trailQue[0].length > limit) {
-		for (let i = 0; i < trailQue.length; i++){
-			trailQue[i].pop()
-		}
-	}
-}
-
-function drawTrail(trailQueue: IPos[][], context: CanvasRenderingContext2D ){
-	for (let i = 0; i < trailQueue.length; i++){
-		for (let j = 0; j  < trailQueue[i].length; j ++) {
-			const point = trailQueue[i][j].position
-			const rgbRange =  Math.floor(360 - j) < 0 ? 0 : Math.floor(360 - j)
-			context.fillStyle = `hsl(${rgbRange}, 55%, 35%)`
-			context.fillRect(point.x, point.y, 2, 2);
-		}	
-	}
-}
-
-function deepCopyRings(origin: IPos[], dest: IPos[][]){
-	for (let i = 0; i < origin.length; i++){
-		if(!dest[i]){
-			dest[i] = []
-		}
-		//deep copy
-		const copyObj = {position: {x: origin[i].position.x, y: origin[i].position.y}} 
-		dest[i].unshift(copyObj)
-	}
-}
 
 
-function shallowCopyRings(ringBodies: Body[], dest: IPos[] ){
-		ringBodies.map((v,i)=>{
-			if(dest){
-				dest[i] = {position : v.position}
-			}
-		});
-}
+
+
+
