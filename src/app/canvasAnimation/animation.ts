@@ -1,24 +1,25 @@
-import  { Body,Composite, Engine, Events, Mouse, MouseConstraint, Render, Runner, Vector } from "matter-js";
-import { floatingButton } from "./bodies";
+import  { Body,Composite, Detector, Engine, Events, Mouse, MouseConstraint, Render, Runner, Vector } from "matter-js";
+import {  floatingButton } from "./bodies";
 import Ring from "./ring";
 
+const SECOND = 1000;
 
 export default class Animation{
-	public runner = Runner.create();
-	public engine = Engine.create({
+	public readonly runner = Runner.create();
+	public readonly engine = Engine.create({
 		gravity:{
 			scale: 0,
 		}
 	});
-	public render: Render;
+	public readonly render: Render;
 
+	private world: Matter.World = this.engine.world;
 	private mouse: Mouse;
 	private mouseConstraint : MouseConstraint;
 	private canvas: HTMLCanvasElement;
 	private ringUI: Ring;
 
 	constructor(canvas: HTMLCanvasElement){
-		this.ringUI = new Ring()
 		this.canvas = canvas,
 		this.render = Render.create({
 		  canvas: canvas,
@@ -41,6 +42,8 @@ export default class Animation{
 				}
 			}
 		});
+		Body.setPosition(floatingButton, {x: this.canvas.width/ 2, y: this.canvas.height /2})
+		this.ringUI = new Ring(this.world, floatingButton)
 	}
 
 	public terminate(){
@@ -64,13 +67,13 @@ export default class Animation{
 	private timerOn = true;
 
 	public connectEvent(){
-		let body: Body | null;
+		let centerBody: Body | null;
 
 		Events.on(this.mouseConstraint,"startdrag", (e: Matter.IEvent<MouseConstraint>)=>{
 			this.startTime = Date.now();
 			this.manyBox = null;
 			this.trail = []
-			body = e.source.body;
+			centerBody = e.source.body;
 		})
 
 		Events.on(this.render, 'afterRender', ()=> {
@@ -85,39 +88,49 @@ export default class Animation{
 			drawTrail(this.trail, this.render.context)
 			popTrail(this.trail, 300)
 			
-			if(this.currentTime - this.startTime > 10000){
+			if(this.currentTime - this.startTime > 10 * SECOND){
 				stopTrailDrawing(this.trail, this.manyBox, this.timerOn)
 			}
 		});
 
+		let whirlwindOpen = false;
 		Events.on(this.mouseConstraint, "mouseup", ()=>{
+			
 			this.manyBox = []
 			this.trail = []
 			
+			if(whirlwindOpen){
+				this.ringUI.reverseWhirlwind()
+				shallowCopyRings(this.ringUI.bodies, this.manyBox)
+				whirlwindOpen = false
+				return;
+			}
 
-			Composite.remove(this.engine.world, this.ringUI.compo)
-			this.ringUI = new Ring()
-			// should reset ringui bodies position
-
-			if(body && body.label === "floatingButton"){
-
-				this.ringUI.setRingsCenter(body.position)
-
-				Composite.add(this.engine.world, this.ringUI.compo)
-
+			if(centerBody && centerBody.label === "floatingButton"){
+				this.ringUI.setRingCenter(centerBody)
 				shallowCopyRings(this.ringUI.bodies, this.manyBox)
 				this.ringUI.whirlwind()
-				body = null 
+				whirlwindOpen = true;
+				centerBody = null 
 			}
 		})
+
+		Events.on(this.engine, "collisionStart", ()=>{
+			const collisions = Detector.collisions(this.ringUI.detector)
+			console.log(collisions)
+		})
+	
 	}
 
 	public demo(){
-		Body.setPosition(floatingButton, {x: this.canvas.width/ 2, y: this.canvas.height /2})
-		Composite.add(this.engine.world, [this.mouseConstraint, floatingButton]);
+		
+		Composite.add(this.world, [this.mouseConstraint]);
 	}
 
 }
+
+
+
 
 interface IPos {
 	position: {
