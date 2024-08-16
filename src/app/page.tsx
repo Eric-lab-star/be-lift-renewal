@@ -12,8 +12,6 @@ export default function Home() {
 		  console.log("run");
 		  animation = new Animation(canvasRef.current)
 		  animation.start();
-		  animation.demo();
-		  animation.connectEvent();
 	  }
 
 	
