@@ -9,11 +9,10 @@ export const boxC = Bodies.rectangle(
 );
 
 export const boxB = Bodies.rectangle(
-	700, 100, 100, 100, {
-		collisionFilter: {
-			category: 0b00000001,
-			mask: 0x0010,
-		}
+	300, 300, 100, 100, {
+		render: {
+			opacity: 0.5
+		},label: "boxB"
 	}
 );
 
@@ -42,11 +41,11 @@ export const boxGroundCollistion = Collision.create(boxA, ground)
 export const floatingButton = Bodies.rectangle(
 	700, 350, 100, 100,
 	{
-		...draggable,
 		label: "floatingButton",
 		chamfer: {
 			radius: 50
 		},
+		isStatic: true,
 		collisionFilter: {
 			category: 0x0001,
 			mask: -1,

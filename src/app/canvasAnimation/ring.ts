@@ -35,7 +35,7 @@ export default class RingUI {
 		})
 		this.trailUI = new TrailUI()
 
-		Composite.add(this.compo, [this.center, ...this.bodies])
+		Composite.add(this.compo, [this.center])
 		Composite.add(this.world, this.compo)
 	}
 
@@ -77,11 +77,10 @@ export default class RingUI {
 
 
 
-	public setRingCenter(centerBody: Body){
-		this.center= centerBody 
+	public redraw(){
 		this.detector.bodies =[ this.center, ...this.bodies ]
 		this.bodies.forEach((body,i) =>{
-			Body.setPosition(body, Vector.add(centerBody.position, RingUI.basePoint[i]))
+			Body.setPosition(body, Vector.add(this.center.position, RingUI.basePoint[i]))
 		})
 	}
 	
@@ -196,19 +195,25 @@ export default class RingUI {
 
 		let whirlwindOpen = false;
 		Events.on(mouse, "mouseup", ()=>{
-			this.trailUI.positions = []
-			this.trailUI.trail = []
-			this.trailUI.startTime = Date.now();
+			if(!centerBody || centerBody.label !== "floatingButton") return;
 			
 			if(whirlwindOpen){
-				this.reverseWhirlwind()
-				this.trailUI.shallowCopyRings(this.bodies)
+				this.trailUI.positions = []
+				this.trailUI.trail = []
+				this.trailUI.startTime = Date.now();
+
 				whirlwindOpen = false
+				Composite.remove(this.compo, this.bodies)
 				return;
 			}
 
-			if(centerBody && centerBody.label === "floatingButton"){
-				this.setRingCenter(centerBody)
+			if(!whirlwindOpen){
+				this.trailUI.positions = []
+				this.trailUI.trail = []
+				this.trailUI.startTime = Date.now();
+
+				Composite.add(this.compo, this.bodies)
+				this.redraw()
 				this.trailUI.shallowCopyRings(this.bodies)
 				this.whirlwind()
 				whirlwindOpen = true;

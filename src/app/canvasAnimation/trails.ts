@@ -1,5 +1,4 @@
 import { Vector } from "matter-js";
-import { IPos } from "./position";
 
 export default class TrailUI {
 
@@ -9,6 +8,7 @@ export default class TrailUI {
 	public currentTime: number = Date.now();
 	public timerOn = true;
 	public SECOND = 1000;
+	private trailWidth = 1;
 	constructor(){
 		
 	}
@@ -32,8 +32,11 @@ export default class TrailUI {
 			for (let j = 0; j  < this.trail[i].length; j ++) {
 				const point = this.trail[i][j].position
 				const rgbRange =  Math.floor(360 - j) < 0 ? 0 : Math.floor(360 - j)
+				context.beginPath()
 				context.fillStyle = `hsl(${rgbRange}, 55%, 35%)`
-				context.fillRect(point.x, point.y, 2, 2);
+				context.arc(point.x, point.y, this.trailWidth, 0, 2 * Math.PI)
+				context.fill()
+				// context.fillRect(point.x, point.y, 10, 10);
 			}	
 		}
 	}
