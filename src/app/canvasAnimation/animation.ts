@@ -1,6 +1,7 @@
-import  { Body,Composite, Engine, Events, Mouse, MouseConstraint, Render, Runner } from "matter-js";
-import {  boxB, floatingButton } from "./bodies";
+import  Matter, { Composite, Engine, Events, Mouse, MouseConstraint, Render, Runner }from "matter-js";
+import { floatingButton } from "./bodies";
 import RingUI from "./ring";
+import PetUI from "./pet";
 
 
 export default class Animation{
@@ -16,20 +17,19 @@ export default class Animation{
 	private mouse: Mouse;
 	private mouseConstraint : MouseConstraint;
 	private canvas: HTMLCanvasElement;
-	private textNode: HTMLDivElement;
 	private ringUI: RingUI;
+	private petUI: PetUI;
 
-	constructor(canvas: HTMLCanvasElement, text: HTMLDivElement){
-		this.textNode = text
+	constructor(canvas: HTMLCanvasElement ){
 		this.canvas = canvas,
 		this.render = Render.create({
 		  canvas: canvas,
 		  engine: this.engine,
 		  options: {
 			wireframes: false,
-			background: 'transparant',
+			background: 'pink',
 			width: canvas.width,
-			height: canvas.height,
+			height: canvas.height, 
 		  }
 		});
 
@@ -43,8 +43,8 @@ export default class Animation{
 				}
 			}
 		});
-		Body.setPosition(floatingButton, {x: this.canvas.width/ 2, y: this.canvas.height /2})
-		// this.ringUI = new RingUI(this.world, floatingButton)
+		this.ringUI = new RingUI(this.world, floatingButton)
+		this.petUI = new PetUI(this.world, this.render, this.mouseConstraint)
 
 	}
 
@@ -55,39 +55,48 @@ export default class Animation{
 	}
 
 	public start(){
-		this.canvas.width = 1200;
-		this.canvas.height = 800;
-		this.render.mouse = this.mouse;
+		this.canvas.width = window.innerWidth
+		this.canvas.height = window.innerHeight 
 		Render.run(this.render);
 		Runner.run(this.runner, this.engine);
-		// this.ringUI.motion(this.mouseConstraint, this.render)
-		Composite.add(this.world, [this.mouseConstraint, this.boxB]);
-		this.textNode.style.position = "relative"
-		this.textNode.style.top = "40px"
+		this.ringUI.motion(this.mouseConstraint, this.render)
+		Composite.add(this.world, [this.mouseConstraint]);
+		this.eventsHandler()
 	}
-	private boxB = boxB
-	private illit = new Event("illit")
+	
+	
 
-	public connectEvent(){
-		let body: Matter.Body
-		Events.on(this.render, "afterRender", ()=>{
-			const posX = this.boxB.position.x
-			const posY = this.boxB.position.y
-			this.textNode.style.top = `${posY - 50}px`
-			this.textNode.style.left = `${posX - 50}px`
-		})
-		Events.on(this.mouseConstraint, "mouseup", ()=>{
-			if (body.label === "boxB"){
-				this.textNode.dispatchEvent(this.illit)
-			}
-		})
+	
 
-		Events.on(this.mouseConstraint, "startdrag", (e)=>{
-			body = e.source.body
+
+	private eventsHandler(){
+		Events.on(this.render, "beforeRender", ()=>{
+			this.canvas.width = window.innerWidth
+			this.canvas.height = window.innerHeight 
+		} )
+
+
+		Events.on(this.engine, "collisionEnd", (e)=>{
+			e.pairs.forEach(pair => {
+				if(pair.bodyA.label === "cursor" && pair.bodyB.label === "floatingButton" ){
+					if(pair.bodyB.render.sprite) {
+						pair.bodyB.render.sprite.xScale = 1;
+						pair.bodyB.render.sprite.yScale = 1;
+					}
+				}
+			})
+		})
+		Events.on(this.engine, "collisionStart", (e)=>{
+			e.pairs.forEach(pair => {
+				if(pair.bodyA.label === "cursor" && pair.bodyB.label === "floatingButton" ){
+					if(pair.bodyB.render.sprite) {
+						pair.bodyB.render.sprite.xScale = 1.4;
+						pair.bodyB.render.sprite.yScale = 1.4;
+					}
+				}
+			})
 		})
 	}
-
-
 }
 
 

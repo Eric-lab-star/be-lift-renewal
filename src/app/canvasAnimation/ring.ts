@@ -1,6 +1,7 @@
-import { Bodies, Body, Composite, Detector, Events, Vector } from "matter-js";
+import { Bodies, Body, Composite, Constraint, Detector, Events, Vector } from "matter-js";
 import { draggable } from "./bodies";
 import TrailUI from "./trails";
+import { pageImages } from "./imagSrc";
 
 const bodyOpts = { ...draggable,
 	chamfer: {
@@ -9,14 +10,16 @@ const bodyOpts = { ...draggable,
 }
 
 export default class RingUI {
-	private static OFFSET: number = 80
-	private static WIDTH: number = 60
+	private static OFFSET: number = 120
+	private static WIDTH: number = 100
+	private static LIMIT: number = 240;
 	private static RADIAN: number = Math.PI / 180
-	private static step: number = 30
+	private static step: number = 90
 	private static basePoint: Matter.Vector[] = RingUI.initBasePoint()
 	private static readonly callBackDelay: number  = 10
 	private static readonly STEP = 20;
 	private animationIds: number[] = [];
+	private pageImags: string[] = pageImages;
 
 	public detector: Matter.Detector;
 	private center: Matter.Body
@@ -24,8 +27,9 @@ export default class RingUI {
 	public compo: Composite
 	private world: Matter.World;
 	private trailUI: TrailUI;
+	private constraints: Constraint[]
 
-	constructor(world: Matter.World, center: Matter.Body){
+	constructor(world: Matter.World, center: Matter.Body, ){
 		this.center = center
 		this.world = world
 		this.compo = Composite.create({label: "ring"})
@@ -34,6 +38,7 @@ export default class RingUI {
 			bodies: this.bodies
 		})
 		this.trailUI = new TrailUI()
+		this.constraints = []
 
 		Composite.add(this.compo, [this.center])
 		Composite.add(this.world, this.compo)
@@ -55,6 +60,7 @@ export default class RingUI {
 		return tmp
 	}
 
+
 	private initRingBodies(){
 		const tmp = []
 		for (let i = 0; i < RingUI.basePoint.length; i++ ){
@@ -65,8 +71,16 @@ export default class RingUI {
 					...bodyOpts,
 					collisionFilter:{
 						category: 0b0010,
-						mask: 0b001,
+						mask: -1,
+					},
+					render:{
+						sprite:{
+							texture: "enhypen.png",
+							xScale: 1,
+							yScale: 1,
+						}
 					}
+
 				}
 			)
 			newBody.frictionAir = 0.05
@@ -85,20 +99,17 @@ export default class RingUI {
 	}
 	
 	public whirlwind(){
-		const limit = 200;
 		this.animationIds.forEach((v)=>{
 			clearInterval(v)
 		})
-		this.bodies.forEach((body,i)=> this.whirl(body,i, limit))
+		this.bodies.forEach((body,i)=> this.whirl(body,i, RingUI.LIMIT))
 	}
 
 	public reverseWhirlwind(){
 		this.animationIds.forEach((v)=>{
 			clearInterval(v)
 		})
-
 		this.bodies.forEach((body,i)=>this.reverseWhirl(body,i))
-
 	}
 
 	public whirl(body: Matter.Body, i: number, limit: number){
@@ -109,8 +120,20 @@ export default class RingUI {
 					body.position.y - this.center.position.y
 				)
 			if(hypot > limit){
-				Body.setVelocity(body,{x: 0, y:0})
 				clearInterval(this.animationIds[i])
+				Body.setVelocity(body,{x: 0, y:0})
+				const constraint = Constraint.create({
+					bodyA: this.center,
+					bodyB: this.bodies[i],
+					stiffness: 0.1,
+					damping: 0.1,
+					length: hypot,
+					render: {
+						visible: false,
+					}
+				})
+				this.constraints[i] = constraint
+				Composite.add(this.compo, this.constraints[i])
 			}
 
 			const radian = Math.atan2(
@@ -169,21 +192,22 @@ export default class RingUI {
 		return !!Composite.get(this.world, this.compo.id, this.compo.type)
 	}
 
+
 	public motion(mouse: Matter.MouseConstraint, render: Matter.Render){
 		let centerBody: Body | null;
 
 		Events.on(mouse,"startdrag", (e)=>{
-			this.trailUI.startTime = Date.now();
 			centerBody = e.source.body;
 		})
 
-		Events.on(render, 'afterRender', ()=> {
+		Events.on(render, 'afterRender', (e)=> {
+			Body.setPosition(this.center, {x: window.innerWidth / 2, y: window.innerHeight / 2})
 			if(this.trailUI.positions === null) return;
 			if (this.trailUI.timerOn){
-				this.trailUI.startTime = Date.now();
+				this.trailUI.startTime = e.timestamp
 				this.trailUI.timerOn = false
 			}
-			this.trailUI.currentTime = Date.now();
+			this.trailUI.currentTime = e.timestamp;
 			this.trailUI.copyPositions()
 			this.trailUI.drawTrail(render.context)
 			this.trailUI.popTrail(300)
@@ -194,6 +218,7 @@ export default class RingUI {
 		});
 
 		let whirlwindOpen = false;
+
 		Events.on(mouse, "mouseup", ()=>{
 			if(!centerBody || centerBody.label !== "floatingButton") return;
 			
@@ -203,6 +228,7 @@ export default class RingUI {
 				this.trailUI.startTime = Date.now();
 
 				whirlwindOpen = false
+				Composite.remove(this.compo, this.constraints)
 				Composite.remove(this.compo, this.bodies)
 				return;
 			}
@@ -211,7 +237,6 @@ export default class RingUI {
 				this.trailUI.positions = []
 				this.trailUI.trail = []
 				this.trailUI.startTime = Date.now();
-
 				Composite.add(this.compo, this.bodies)
 				this.redraw()
 				this.trailUI.shallowCopyRings(this.bodies)

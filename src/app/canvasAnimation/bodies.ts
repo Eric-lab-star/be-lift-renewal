@@ -4,6 +4,34 @@ export const draggable= {
 	inertia: Infinity,
 	frictionAir: 1,
 }
+
+
+export const cursorPet = Bodies.rectangle(
+	700, 100, 30, 20,{
+		label: "cursorPet",
+		render: {
+			fillStyle: "orange",
+			sprite: {
+				texture: "Crabby/02-Run/Run 01.png",
+				xScale: 1.5,
+				yScale: 1.5,
+			}
+		},
+		isSensor: true,
+	}
+);
+
+export const cursor = Bodies.rectangle(
+	700, 100, 10, 10,{
+		label: "cursor",
+		render: {
+			fillStyle: "transparent"
+		},
+		isSensor: true,
+	}
+);
+
+
 export const boxC = Bodies.rectangle(
 	700, 100, 100, 100
 );
@@ -11,8 +39,15 @@ export const boxC = Bodies.rectangle(
 export const boxB = Bodies.rectangle(
 	300, 300, 100, 100, {
 		render: {
-			opacity: 0.5
-		},label: "boxB"
+			opacity: 1,
+			sprite: {
+				texture: "logo.png",
+				xScale: 1,
+				yScale:1,
+			}
+		},
+		label: "boxB",
+		isStatic: true,
 	}
 );
 
@@ -49,6 +84,13 @@ export const floatingButton = Bodies.rectangle(
 		collisionFilter: {
 			category: 0x0001,
 			mask: -1,
+		},
+		render: {
+			sprite: {
+				texture: "logo.png",
+				xScale:1,
+				yScale:1,
+			}
 		}
 
 	}

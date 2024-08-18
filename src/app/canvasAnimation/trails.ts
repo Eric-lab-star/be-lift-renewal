@@ -36,7 +36,6 @@ export default class TrailUI {
 				context.fillStyle = `hsl(${rgbRange}, 55%, 35%)`
 				context.arc(point.x, point.y, this.trailWidth, 0, 2 * Math.PI)
 				context.fill()
-				// context.fillRect(point.x, point.y, 10, 10);
 			}	
 		}
 	}
