@@ -1,3 +1,7 @@
 export default function Illit() {
-	return (<div>illit page</div>)
+	return (
+		<div>
+			illit page
+		</div>
+	)
 }
