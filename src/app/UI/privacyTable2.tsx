@@ -1,8 +1,8 @@
 export default function PrivacyTable2(){
 	return(
 		<div className="text-sm">
-			<div className="divide-x divide-y divide-black border-black border-b border-r   grid grid-cols-7 gird-flow-row">
-				<div className="col-span-2 flex justify-center border-l border-t border-black items-center p-1 ">제공 받는자</div>
+			<div className="divide-x divide-y divide-black dark:divide-zinc-300 border-black dark:border-zinc-300 border-b border-r   grid grid-cols-7 gird-flow-row">
+				<div className="col-span-2 flex justify-center border-l border-t dark:border-zinc-300 border-black items-center p-1 ">제공 받는자</div>
 				<div className="cola-span-1 flex justify-center items-center p-1">제공 국가</div>
 				<div className="col-span-2 flex justify-center items-center p-1">개인정보를 제공받는 자의 개인정보 이용 목적</div>
 				<div className="col-span-1 flex justify-center items-center p-1">제공 항목</div>

@@ -18,7 +18,7 @@ export default function RootLayout({
 	const [theme, setTheme] = useState("light")
 
 	useEffect(()=>{
-		if (window.matchMedia('(prefers-color-scheme: dark)').matches){
+		if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)){
 			setTheme("dark")
 		}else{
 			setTheme("light")
@@ -28,8 +28,10 @@ export default function RootLayout({
 	function toggleTheme(){
 		if(theme === "dark"){
 			setTheme("light")
+			window.localStorage.setItem("theme", "light")
 		}else{
 			setTheme("dark")
+			window.localStorage.setItem("theme", "dark")
 		}
 	}
   return (

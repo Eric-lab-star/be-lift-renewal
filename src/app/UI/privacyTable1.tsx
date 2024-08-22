@@ -1,8 +1,8 @@
 export default function PrivacyTable1(){
 	return (
 	<div className="text-sm">
-		<div className="grid grid-cols-11 divide-x divide-y divide-black border-r border-b border-black  grid-flow-row">
-			<div className="font-semibold border-t border-l border-black flex justify-center items-center"><div className="">분류</div></div>
+		<div className="grid grid-cols-11 divide-x divide-y divide-black dark:divide-zinc-400 border-r border-b border-black dark:border-zinc-400 grid-flow-row">
+			<div className="font-semibold border-t border-l border-black dark:border-zinc-400 flex justify-center items-center"><div className="">분류</div></div>
 			<div className="font-semibold col-span-2 flex justify-center items-center">구분</div>
 			<div className="font-semibold col-span-2 flex justify-center items-center">수집항목</div>
 			<div className="font-semibold col-span-3 flex justify-center items-center">수집 이용 목적</div>

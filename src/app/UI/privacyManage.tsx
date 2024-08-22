@@ -1,8 +1,8 @@
 export default function PrivacyManage(){
 	
 	return(
-		<div className="text-sm grid grid-cols-2 grid-flow-row divide-black divide-x divide-y border-b border-r border-black">
-			<div className="font-semibold border-l border-t border-black flex justify-center items-center">제공자</div>
+		<div className="dark:divide-zinc-300 dark:border-zinc-300 text-sm grid grid-cols-2 grid-flow-row divide-black divide-x divide-y border-b border-r border-black">
+			<div className="dark:border-zinc-300 font-semibold border-l border-t border-black flex justify-center items-center">제공자</div>
 			<div className="font-semibold flex justify-center items-center p-1">수집 이용목적</div>
 			<div className="flex justify-center items-center p-1">㈜위버스컴퍼니 </div>
 			<div className="flex justify-center items-center p-1">멤버십 회원 구매 대행 및 커뮤니티 서비스 운영, FC사업 운영</div>

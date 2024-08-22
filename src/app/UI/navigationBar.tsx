@@ -1,8 +1,6 @@
 import clsx from "clsx"
 import Image from "next/image"
 import Link from "next/link"
-import { ThemeCtx } from "../context/theme"
-import { useContext, useEffect, useRef, useState } from "react"
 import Dark from "../SVG/dark"
 import Light from "../SVG/light"
 
@@ -24,10 +22,8 @@ const langs = [
 const navLinkStyle = " flex justify-center items-center gap-2 p-2"
 
 export default function NavBar({theme, toggleTheme}:{toggleTheme: ()=>void, theme: string}) {
-
-
 	return(
-	<div className={clsx("dark:bg-slate-600 h-20 flex border-b-gray-300 border-2")} >
+	<div className={clsx("dark:bg-amber-600/10 h-20 flex border-b-gray-300 dark:border-b-amber-600 border-2 fixed top-0 left-0 w-screen bg-white/10  backdrop-blur-md", )} >
 		<div className="flex-1 flex items-stretch">
 			{links.map((link)=>{
 				return (
