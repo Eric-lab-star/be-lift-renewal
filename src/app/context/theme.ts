@@ -1,5 +1,4 @@
+"use client"
 import { createContext } from "react";
 
-export const pastelTheme = createContext({
-	roseWater: "#dc8a78"
-})
+export const ThemeCtx = createContext("light")

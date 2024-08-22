@@ -7,8 +7,9 @@ import PrivacyService from "../UI/privacyService";
 
 export default function Privacy() {
 	return(
-		<div className="py-40 px-52">
-			<h1 id="title" className="text-3xl font-bold pb-3">개인정보 처리방침</h1>
+		<div className="dark:bg-slate-800 dark:text-zinc-50 flex items-center flex-col py-20">
+		<div className="min-w-96 w-4/6">
+		<h1 id="title" className="text-3xl font-bold pb-3">개인정보 처리방침</h1>
 			<div className="space-y-3">
 				<p className="">본 개인정보처리방침의 경우 대한민국 법률에 따라 작성되었습니다.
 
@@ -113,6 +114,7 @@ export default function Privacy() {
 
 
 
+			</div>
 			</div>
 		</div>
 	)
