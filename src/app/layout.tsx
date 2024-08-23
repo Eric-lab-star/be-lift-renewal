@@ -2,10 +2,13 @@
 
 import { Inter } from "next/font/google";
 import "./globals.css";
-import NavBar from "./UI/navigationBar";
+import TopNavBar from "./UI/topNavBar";
 import clsx from "clsx";
-import Footer from "./UI/footer";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
+import { darkbg, darkText } from "./styles";
+import themesReducer, { ThemeCtx, ThemeDispatchCtx } from "./stateManager/themeManager";
+import { SideBarCtx, SideBarDispatchCtx, sideBarReducer } from "./stateManager/sideBarManager";
+import SideBar from "./UI/sideBar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,43 +17,47 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-	const [theme, setTheme] = useState("light")
+	const [theme, dispatchTheme]  = useReducer(themesReducer, {state: "light"})
+	const [sideBarState, dispatchSideBarState] = useReducer(sideBarReducer, false)
+	
 
 	useEffect(()=>{
 		if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)){
-			setTheme("dark")
+			dispatchTheme({state:"dark"})
 		}else{
-			setTheme("light")
+			dispatchTheme({state:"light"})
 		}
 	},[])
 
-	function toggleTheme(){
-		if(theme === "dark"){
-			setTheme("light")
-			window.localStorage.setItem("theme", "light")
-		}else{
-			setTheme("dark")
-			window.localStorage.setItem("theme", "dark")
-		}
-	}
+	
+
   return (
-    <html lang="ko">
+    <html>
 		<head>
 			<title>be:lift</title>
 		</head>
-		  <body className={
-			  clsx(
-				  inter.className,
-				  theme
-			  )
-		  }>
-			  <NavBar toggleTheme={toggleTheme} theme={theme}/>
-			  <div className="min-h-screen">
-				  {children}
-			  </div>
-			  <Footer/>
-		  </body>
+			<ThemeCtx.Provider value={theme}>
+				<ThemeDispatchCtx.Provider value={dispatchTheme}>
+			<SideBarDispatchCtx.Provider value={dispatchSideBarState}>
+				<SideBarCtx.Provider value={sideBarState}>
+					  <body className={
+						  clsx(
+							  inter.className,
+							  theme.state, 
+						  )
+					  }>
+						  <TopNavBar/> 
+						  <div className="md:flex">
+							<SideBar/>
+							<div className={`dark:${darkText} dark:${darkbg} bg-amber-300 py-20 min-h-screen md:-z-10 md:static md:w-full`}>
+								{children}
+							</div>
+						  </div>
+					  </body>
+				</SideBarCtx.Provider>
+			</SideBarDispatchCtx.Provider>
+			</ThemeDispatchCtx.Provider>
+			</ThemeCtx.Provider>
     </html>
   );
 }
