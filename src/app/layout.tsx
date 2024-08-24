@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import TopNavBar from "./UI/topNavBar";
 import clsx from "clsx";
-import { useEffect, useReducer } from "react";
+import { ReactNode, useEffect, useReducer } from "react";
 import { darkbg, darkText } from "./styles";
 import themesReducer, { ThemeCtx, ThemeDispatchCtx } from "./stateManager/themeManager";
 import { SideBarCtx, SideBarDispatchCtx, sideBarReducer } from "./stateManager/sideBarManager";
@@ -36,27 +36,29 @@ export default function RootLayout({
   return (
     <html>
 		<head>
-			<title>be:lift</title>
+			<title>BE:LIFTLAB</title>
 		</head>
 			<ThemeCtx.Provider value={theme}>
-				<ThemeDispatchCtx.Provider value={dispatchTheme}>
+			<ThemeDispatchCtx.Provider value={dispatchTheme}>
 			<SideBarDispatchCtx.Provider value={dispatchSideBarState}>
-				<SideBarCtx.Provider value={sideBarState}>
-				<BodyMeasureCtx.Provider value={bodyMeasure}>
-				  <body ref={bodyRef} className={ clsx( inter.className, theme.state, ) }>
-					  <TopNavBar/> 
-					  <div className="md:flex">
-						<SideBar/>
-						<div className={`p-4 dark:${darkText} dark:${darkbg} bg-amber-300 py-20 min-h-screen md:static md:w-full `}>
-							{children}
-						</div>
-					  </div>
-				  </body>
-				</BodyMeasureCtx.Provider>
-				</SideBarCtx.Provider>
+			<SideBarCtx.Provider value={sideBarState}>
+			<BodyMeasureCtx.Provider value={bodyMeasure}>
+			  <body ref={bodyRef} className={ clsx( inter.className, theme.state, ) }>
+				  <TopNavBar/> 
+				  <div className="md:flex">
+					<SideBar/>
+					<div className={`p-4 dark:${darkText} dark:${darkbg} bg-slate-100 py-14 min-h-screen w-full`}>
+						{children}
+					</div>
+				  </div>
+			  </body>
+			</BodyMeasureCtx.Provider>
+			</SideBarCtx.Provider>
 			</SideBarDispatchCtx.Provider>
 			</ThemeDispatchCtx.Provider>
 			</ThemeCtx.Provider>
     </html>
   );
 }
+
+
