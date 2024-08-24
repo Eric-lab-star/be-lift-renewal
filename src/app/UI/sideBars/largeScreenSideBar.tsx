@@ -1,6 +1,6 @@
 import { SideBarCtx } from "@/app/stateManager/sideBarManager"
 import { useContext } from "react"
-import { links, navLinkStyle } from "../sideBar"
+import { links, navLinkStyle } from "./sideBar"
 import Link from "next/link"
 import clsx from "clsx"
 import { darkText } from "@/app/styles"

@@ -8,7 +8,7 @@ import { useEffect, useReducer } from "react";
 import { darkbg, darkText } from "./styles";
 import themesReducer, { ThemeCtx, ThemeDispatchCtx } from "./stateManager/themeManager";
 import { SideBarCtx, SideBarDispatchCtx, sideBarReducer } from "./stateManager/sideBarManager";
-import SideBar from "./UI/sideBar";
+import SideBar from "./UI/sideBars/sideBar";
 import  useMeasure from "react-use-measure"
 import { BodyMeasureCtx } from "./stateManager/bodyMeasure";
 

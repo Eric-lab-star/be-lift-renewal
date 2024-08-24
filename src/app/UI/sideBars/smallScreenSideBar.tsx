@@ -3,7 +3,7 @@ import clsx from "clsx"
 import { useContext } from "react"
 import { animated } from "@react-spring/web"
 import { darkText } from "@/app/styles"
-import { links, navLinkStyle } from "../sideBar"
+import { links, navLinkStyle } from "./sideBar"
 import Link from "next/link"
 import Footer from "../footer"
 

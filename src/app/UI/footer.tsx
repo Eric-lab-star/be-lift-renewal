@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import RightArrow from "../SVG/rightArrow";
+import RightArrow from "./SVG/rightArrow";
 
 export default function Footer() {
 	return (

@@ -1,10 +1,10 @@
 import { useContext } from "react"
 import { SideBarCtx, SideBarDispatchCtx } from "../stateManager/sideBarManager"
-import OpenBars from "../SVG/openBars"
 import Link from "next/link"
 import BeLiftLabLogo from "./logos/beliftlabLogo"
 import { useHover } from "@use-gesture/react"
 import { animated, useSpring } from "@react-spring/web"
+import OpenBars from "./SVG/openBars"
 
 export default function TopNavBarLS(){
 	const sideBarState = useContext(SideBarCtx)

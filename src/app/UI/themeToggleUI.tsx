@@ -1,7 +1,7 @@
 import { useContext } from "react"
 import { ThemeCtx, ThemeDispatchCtx } from "../stateManager/themeManager"
-import Dark from "../SVG/dark"
-import Light from "../SVG/light"
+import Dark from "./SVG/dark"
+import Light from "./SVG/light"
 
 export default function ThemeToggleUI(){
 	const dispatchTheme = useContext(ThemeDispatchCtx)
