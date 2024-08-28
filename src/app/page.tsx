@@ -1,6 +1,6 @@
 "use client";
-import { animated, useTransition } from "@react-spring/web";
-import { useState } from "react";
+import { animated, useTrail, useTransition } from "@react-spring/web";
+import React, { CSSProperties, ReactNode, useState } from "react";
 
 const Boxes = [
   { name: "A", key: "1", center: false },
@@ -12,39 +12,41 @@ const Boxes = [
 ];
 
 export default function Home() {
-  const [boxes, setBoxes] = useState(Boxes);
-  const [index, setIndex] = useState(0);
-  const trans = useTransition(index, {
-    from: { x: 100, opacity: 0 },
-    enter: { x: 0, opacity: 1 },
-    leave: { x: -100, opacity: 0 },
-  });
-
-
-  function onClick() {
-    setIndex((prev) => (prev + 3) % 6);
-  }
-
+  const [open, set] = useState(false);
   return (
     <div className="container border-amber-500 border-2 border-dashed mx-auto">
-      <button
-        className="rounded-md bg-amber-500 p-2"
-        onClick={onClick}
-      >
+      <button onClick={()=>set(!open)} className="rounded-md bg-amber-500 p-2">
         click
       </button>
+      <Trail open={open}>
+        <div>Hello</div>
+        <div>My</div>
+        <div>Fans</div>
+      </Trail>
+    </div>
+  );
+}
 
-      {trans((style, index) => {
-        return (
-          <animated.div style={style} className="flex space-x-5 absolute">
-            {boxes.slice(index, index + 3).map((box) => (
-              <animated.div key={box.key} className="bg-slate-400 w-20 h-20">
-                {box.name}
-              </animated.div>
-            ))}
-          </animated.div>
-        );
-      })}
+function Trail({ open, children }: { open: boolean,children: ReactNode }) {
+  const items = React.Children.toArray(children);
+  const trails = useTrail(items.length, {
+    config: { mass: 5, tension: 2000, friction: 200 },
+    opacity: open ? 1 : 0,
+    x: open ? 0 : 20,
+    height: open ? 110 : 0,
+    from: { opacity: 0, x: 20, height: 0 },
+  });
+  return (
+    <div>
+      {trails.map((style, index) => (
+        <animated.div
+          key={index}
+          className="inline-block bg-slate-300 w-20 h-20"
+          style={style}
+        >
+          <animated.div>{items[index]}</animated.div>
+        </animated.div>
+      ))}
     </div>
   );
 }
