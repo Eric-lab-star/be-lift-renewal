@@ -1,5 +1,5 @@
 "use client";
-import { animated, to, useSpring, useTransition } from "@react-spring/web";
+import { animated, useTransition } from "@react-spring/web";
 import { useState } from "react";
 
 const Boxes = [
@@ -20,17 +20,8 @@ export default function Home() {
     leave: { x: -100, opacity: 0 },
   });
 
-  const [springStyle, api] = useSpring(() => ({
-    from: { x: -100, opacity: 0 },
-    enter: { x: 0, opacity: 1 },
-    leave: { x: 100, opacity: 0 },
-  }));
 
   function onClick() {
-    // setBoxes((prev) => {
-    //   const newSet = prev.slice(1, prev.length);
-    //   return [...newSet, prev[0]];
-    // });
     setIndex((prev) => (prev + 3) % 6);
   }
 
@@ -42,29 +33,18 @@ export default function Home() {
       >
         click
       </button>
+
       {trans((style, index) => {
-				return <animated.div style={style}  className="flex space-x-5 absolute">
-				{boxes.slice(index, index+ 3).map(box => <animated.div key={box.key} className="bg-slate-400 w-20 h-20">{box.name}</animated.div>)
-
-				}
-				</animated.div>
+        return (
+          <animated.div style={style} className="flex space-x-5 absolute">
+            {boxes.slice(index, index + 3).map((box) => (
+              <animated.div key={box.key} className="bg-slate-400 w-20 h-20">
+                {box.name}
+              </animated.div>
+            ))}
+          </animated.div>
+        );
       })}
-
-      {/* <animated.div */}
-      {/*   style={{ ...springStyle }} */}
-      {/*   className="h-96 flex  space-x-5 absolute bg-slate-200" */}
-      {/* > */}
-      {/*   {boxes.slice(0, 3).map((box, index) => { */}
-      {/*     return ( */}
-      {/*       <div */}
-      {/*         key={box.key} */}
-      {/*         className="w-20 flex justify-center items-center font-semibold  h-20 bg-amber-400" */}
-      {/*       > */}
-      {/*         <div>{box.name}</div> */}
-      {/*       </div> */}
-      {/*     ); */}
-      {/*   })} */}
-      {/* </animated.div> */}
     </div>
   );
 }
